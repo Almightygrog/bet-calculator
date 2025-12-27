@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bet Calculator</title>
+  <style>
+    body { font-family: Arial; max-width: 400px; margin: auto; padding: 20px; }
+    input, button { width: 100%; padding: 8px; margin: 5px 0; }
+  </style>
+</head>
+<body>
+
+<h2>Bet Calculator</h2>
+
+<label>Odds (American)</label>
+<input id="odds" type="number" placeholder="-120">
+
+<label>Desired Win ($)</label>
+<input id="win" type="number" placeholder="50">
+
+<button onclick="calculate()">Calculate</button>
+
+<h3 id="result"></h3>
+
+<script>
+function calculate() {
+  const odds = parseFloat(document.getElementById("odds").value);
+  const win = parseFloat(document.getElementById("win").value);
+
+  if (!odds || !win) {
+    document.getElementById("result").innerText = "Enter odds and win amount";
+    return;
+  }
+
+  let bet;
+  if (odds < 0) {
+    bet = win * Math.abs(odds) / 100;
+  } else {
+    bet = win * 100 / odds;
+  }
+
+  document.getElementById("result").innerText =
+    `Bet: $${bet.toFixed(2)} | Total Payout: $${(bet + win).toFixed(2)}`;
+}
+</script>
+
+</body>
+</html>
