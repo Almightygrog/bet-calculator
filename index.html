@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Boosted Odds Calculator</title>
+  <title>Advanced Boosted Odds Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 420px;
+      max-width: 450px;
       margin: auto;
       padding: 20px;
     }
@@ -14,16 +14,22 @@
       padding: 8px;
       margin: 6px 0;
     }
-    h2 {
-      margin-top: 0;
+    .section {
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+    .result {
+      margin-top: 10px;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
 
-<h2>Boosted Odds Calculator</h2>
+<h2>Advanced Boosted Odds Calculator</h2>
 
-<label>Current Odds (American)</label>
+<label>Odds (American)</label>
 <input id="odds" type="number" placeholder="+150">
 
 <label>Boost %</label>
@@ -32,9 +38,20 @@
 <label>Wager Amount ($)</label>
 <input id="wager" type="number" placeholder="50">
 
-<button onclick="calculateBoost()">Calculate</button>
+<label>Max Boosted Win Cap ($, optional)</label>
+<input id="cap" type="number" placeholder="100">
 
-<h3 id="result"></h3>
+<button onclick="calculate()">Calculate</button>
+
+<div class="result" id="result"></div>
+
+<div class="section">
+  <h3>Bet to Win $X (Boosted)</h3>
+  <label>Desired Boosted Win ($)</label>
+  <input id="desiredWin" type="number" placeholder="50">
+  <button onclick="betToWin()">Calculate Wager</button>
+  <div class="result" id="betToWinResult"></div>
+</div>
 
 <script>
 function americanToDecimal(odds) {
@@ -51,34 +68,62 @@ function decimalToAmerican(decimal) {
   }
 }
 
-function calculateBoost() {
+function calculate() {
   const odds = parseFloat(document.getElementById("odds").value);
   const boost = parseFloat(document.getElementById("boost").value);
   const wager = parseFloat(document.getElementById("wager").value);
+  const cap = parseFloat(document.getElementById("cap").value);
 
   if (!odds || !boost || !wager) {
     document.getElementById("result").innerText =
-      "Please enter odds, boost %, and wager amount";
+      "Enter odds, boost %, and wager";
     return;
   }
 
-  // Convert to decimal
-  const decimalOdds = americanToDecimal(odds);
+  const decimal = americanToDecimal(odds);
+  const baseProfitMult = decimal - 1;
+  const boostedProfitMult = baseProfitMult * (1 + boost / 100);
 
-  // Apply boost to profit portion only
-  const baseProfitMultiplier = decimalOdds - 1;
-  const boostedProfitMultiplier =
-    baseProfitMultiplier * (1 + boost / 100);
+  const boostedDecimal = 1 + boostedProfitMult;
+  const boostedAmerican = decimalToAmerican(boostedDecimal);
 
-  const boostedDecimalOdds = 1 + boostedProfitMultiplier;
-  const boostedAmericanOdds = decimalToAmerican(boostedDecimalOdds);
+  const originalWin = wager * baseProfitMult;
+  let boostedWin = wager * boostedProfitMult;
 
-  // Profit only (no stake)
-  const boostedWin = wager * boostedProfitMultiplier;
+  let capText = "";
+  if (cap && boostedWin > cap) {
+    boostedWin = cap;
+    capText = `<br><strong>⚠ Boost capped at $${cap.toFixed(2)}</strong>`;
+  }
 
-  document.getElementById("result").innerHTML =
-    `Boosted Odds: <strong>${boostedAmericanOdds}</strong><br>
-     Win Amount (Profit Only): <strong>$${boostedWin.toFixed(2)}</strong>`;
+  const extraValue = boostedWin - originalWin;
+
+  document.getElementById("result").innerHTML = `
+    Boosted Odds: <strong>${boostedAmerican}</strong><br>
+    Original Win: $${originalWin.toFixed(2)}<br>
+    Boosted Win: $${boostedWin.toFixed(2)}<br>
+    Extra Boost Value: <strong>$${extraValue.toFixed(2)}</strong>
+    ${capText}
+  `;
+}
+
+function betToWin() {
+  const odds = parseFloat(document.getElementById("odds").value);
+  const boost = parseFloat(document.getElementById("boost").value);
+  const desiredWin = parseFloat(document.getElementById("desiredWin").value);
+
+  if (!odds || !boost || !desiredWin) {
+    document.getElementById("betToWinResult").innerText =
+      "Enter odds, boost %, and desired win";
+    return;
+  }
+
+  const decimal = americanToDecimal(odds);
+  const boostedProfitMult = (decimal - 1) * (1 + boost / 100);
+  const wagerNeeded = desiredWin / boostedProfitMult;
+
+  document.getElementById("betToWinResult").innerHTML =
+    `Required Wager: <strong>$${wagerNeeded.toFixed(2)}</strong>`;
 }
 </script>
 
