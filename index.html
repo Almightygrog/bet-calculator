@@ -23,6 +23,17 @@
       margin-top: 10px;
       line-height: 1.5;
     }
+    .boost-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .boost-buttons button {
+      flex: 1 1 30%;
+      padding: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -34,6 +45,16 @@
 
 <label>Boost %</label>
 <input id="boost" type="number" placeholder="25">
+
+<div class="boost-buttons">
+  <button onclick="setBoost(10)">10%</button>
+  <button onclick="setBoost(15)">15%</button>
+  <button onclick="setBoost(20)">20%</button>
+  <button onclick="setBoost(25)">25%</button>
+  <button onclick="setBoost(30)">30%</button>
+  <button onclick="setBoost(33)">33%</button>
+  <button onclick="setBoost(50)">50%</button>
+</div>
 
 <label>Wager Amount ($)</label>
 <input id="wager" type="number" placeholder="50">
@@ -54,6 +75,10 @@
 </div>
 
 <script>
+function setBoost(value) {
+  document.getElementById("boost").value = value;
+}
+
 function americanToDecimal(odds) {
   return odds > 0
     ? 1 + odds / 100
